@@ -764,11 +764,15 @@ contract Comet is CometMainInterface {
      * @return true if the asset is a UniV3LPVault
      */
     function isUniV3LPVaultAsset(address asset) internal view returns (bool) {
-        try IUniV3LPVault(asset).isUniV3LPVault() returns (bool isVault) {
-            return isVault;
-        } catch {
+        // Use staticcall with limited gas to prevent WRITE_PROTECTION errors
+        // Some contracts may try to write state even in view functions
+        (bool success, bytes memory result) = asset.staticcall{gas: 30000}(
+            abi.encodeWithSelector(IUniV3LPVault.isUniV3LPVault.selector)
+        );
+        if (!success || result.length < 32) {
             return false;
         }
+        return abi.decode(result, (bool));
     }
 
     /**
