@@ -21,6 +21,9 @@ contract Comet is CometMainInterface {
     /// @notice The account which may trigger pauses
     address public override immutable pauseGuardian;
 
+    /// @notice The admin account for managing liquidators and reserves
+    address public override immutable admin;
+
     /// @notice The address of the base token contract
     address public override immutable baseToken;
 
@@ -149,6 +152,7 @@ contract Comet is CometMainInterface {
         unchecked {
             governor = config.governor;
             pauseGuardian = config.pauseGuardian;
+            admin = config.admin;
             baseToken = config.baseToken;
             baseTokenPriceFeed = config.baseTokenPriceFeed;
             extensionDelegate = config.extensionDelegate;
@@ -1865,10 +1869,10 @@ contract Comet is CometMainInterface {
      * @notice Set or remove a liquidator contract from the allowed list
      * @param liquidator The address of the liquidator contract
      * @param allowed Whether the liquidator is allowed to call absorb
-     * @dev Only governor can call this function
+     * @dev Only admin can call this function
      */
     function setAllowedLiquidator(address liquidator, bool allowed) external {
-        if (msg.sender != governor) revert Unauthorized();
+        if (msg.sender != admin) revert Unauthorized();
         if (liquidator == address(0)) revert BadAsset();
         
         allowedLiquidators[liquidator] = allowed;
@@ -1876,12 +1880,12 @@ contract Comet is CometMainInterface {
     }
 
     /**
-     * @notice Withdraws base token reserves if called by the governor
+     * @notice Withdraws base token reserves if called by the admin
      * @param to An address of the receiver of withdrawn reserves
      * @param amount The amount of reserves to be withdrawn from the protocol
      */
     function withdrawReserves(address to, uint amount) override external {
-        if (msg.sender != governor) revert Unauthorized();
+        if (msg.sender != admin) revert Unauthorized();
 
         int reserves = getReserves();
         if (reserves < 0 || amount > unsigned256(reserves)) revert InsufficientReserves();

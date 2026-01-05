@@ -147,24 +147,9 @@ contract LiquidationRouter is
         bytes32 balancerPoolId; // Balancer pool ID
         address curvePool;      // Curve pool 地址
     }
-
-    /// @notice Balancer Vault 地址
-    address public immutable balancerVault;
-    
-    /// @notice SushiSwap Router 地址
-    address public immutable sushiSwapRouter;
     
     /// @notice Uniswap Router 地址
     address public immutable uniswapRouter;
-
-    /// @notice Lido Staked Ether 地址
-    address public immutable stEth;
-
-    /// @notice Wrapped liquid staked Ether 地址
-    address public immutable wstEth;
-
-    /// @notice Curve 使用的空地址表示 ETH
-    address public constant NULL_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
     /// @notice LiquidityRouter 合约地址（用于 Perp LP 操作）
     address public immutable liquidityRouter;
@@ -211,22 +196,14 @@ contract LiquidationRouter is
      * @dev 直接部署时，部署者自动成为 owner
      */
     constructor(
-        address balancerVault_,
-        address sushiSwapRouter_,
         address uniswapRouter_,
         address uniswapV3Factory_,
-        address stEth_,
-        address wstEth_,
         address WETH9_,
         address liquidityRouter_,
         address perpLPToken_,
         uint256 perpLPSlippageBasisPoints_
     ) PeripheryImmutableState(uniswapV3Factory_, WETH9_) {
-        balancerVault = balancerVault_;
-        sushiSwapRouter = sushiSwapRouter_;
         uniswapRouter = uniswapRouter_;
-        stEth = stEth_;
-        wstEth = wstEth_;
         liquidityRouter = liquidityRouter_;
         perpLPToken = perpLPToken_;
         require(perpLPSlippageBasisPoints_ <= BASIS_POINTS_DIVISOR, "Invalid slippage");
